@@ -1,0 +1,99 @@
+Problem
+	3606.	Coupon Code Validator
+Solved
+Easy
+
+Topics
+premium lock icon
+Companies
+
+Hint
+You are given three arrays of length n that describe the properties of n coupons: code, businessLine, and isActive. The ith coupon has:
+
+code[i]: a string representing the coupon identifier.
+businessLine[i]: a string denoting the business category of the coupon.
+isActive[i]: a boolean indicating whether the coupon is currently active.
+A coupon is considered valid if all of the following conditions hold:
+
+code[i] is non-empty and consists only of alphanumeric characters (a-z, A-Z, 0-9) and underscores (_).
+businessLine[i] is one of the following four categories: “electronics”, “grocery”, “pharmacy”, “restaurant”.
+isActive[i] is true.
+Return an array of the codes of all valid coupons, sorted first by their businessLine in the order: “electronics”, “grocery”, “pharmacy”, “restaurant”, and then by code in lexicographical (ascending) order within each category.
+
+Example 1:
+
+    Input: code = [“SAVE20”,””,“PHARMA5”,“SAVE@20”], businessLine = [“restaurant”,“grocery”,“pharmacy”,“restaurant”], isActive = [true,true,true,true]
+
+    Output: [“PHARMA5”,“SAVE20”]
+
+Explanation:
+
+First coupon is valid.
+Second coupon has empty code (invalid).
+Third coupon is valid.
+Fourth coupon has special character @ (invalid).
+Example 2:
+
+    Input: code = [“GROCERY15”,“ELECTRONICS_50”,“DISCOUNT10”], businessLine = [“grocery”,“electronics”,“invalid”], isActive = [false,true,true]
+
+    Output: [“ELECTRONICS_50”]
+
+Explanation:
+
+First coupon is inactive (invalid).
+Second coupon is valid.
+Third coupon has invalid business line (invalid).
+
+Constraints:
+
+    n == code.length == businessLine.length == isActive.length
+    1 <= n <= 100
+    0 <= code[i].length, businessLine[i].length <= 100
+    code[i] and businessLine[i] consist of printable ASCII characters.
+    isActive[i] is either true or false.
+
+Approach
+
+        1.	Define the required business line ordering using a dictionary that maps each allowed category to its sort priority:
+    "electronics" -> 0, "grocery" -> 1, "pharmacy" -> 2, "restaurant" -> 3.
+        2.	Precompile a regular expression that matches a valid coupon code: only letters, digits, and underscores, and at least one character (^[A-Za-z0-9_]+$).
+        3.	Iterate through the coupons in parallel using zip(code, businessLine, isActive):
+            •	Skip the coupon if it is not active.
+            •	Skip the coupon if businessLine is not one of the four allowed categories.
+            •	Skip the coupon if the code is empty or fails the regex validation.
+            •	For valid coupons, store a tuple (businessLineOrder, code) in a list.
+        4.	Sort the list of tuples. Tuple sorting naturally sorts by businessLineOrder first, then by code lexicographically.
+        5.	Extract and return only the code values from the sorted tuples.
+
+Why This Solution
+	•	The order dictionary directly enforces the custom category ordering required by the problem, avoiding conditional chains.
+	•	A precompiled regex provides a clear, reliable way to enforce the allowed character set and non-empty requirement in one check.
+	•	Collecting (orderValue, code) tuples makes sorting straightforward: Python’s default tuple sorting exactly matches the required “category order then lexicographical code” rule.
+	•	Using early continue statements keeps the validation logic readable and ensures invalid coupons are excluded as soon as a condition fails.
+
+Complexity
+	•	Time Complexity: O(n + k log k), where n is the number of coupons and k is the number of valid coupons (filtering is O(n), sorting valid ones is O(k log k)).
+	•	Space Complexity: O(k) for storing the valid coupons prior to sorting.
+
+Solution
+
+    from typing import List
+    import re
+
+    class Solution:
+        def validateCoupons(self, code: List[str], businessLine: List[str], isActive: List[bool]) -> List[str]:
+            order = {"electronics": 0, "grocery": 1, "pharmacy": 2, "restaurant": 3}
+            valid_code = re.compile(r"^[A-Za-z0-9_]+$")
+
+            good = []
+            for c, b, active in zip(code, businessLine, isActive):
+                if not active:
+                    continue
+                if b not in order:
+                    continue
+                if not c or not valid_code.match(c):
+                    continue
+                good.append((order[b], c))
+
+            good.sort()
+            return [c for _, c in good]
