@@ -1,0 +1,44 @@
+Intuition
+
+I observe that a smooth descent period is a contiguous sequence where each next price is exactly 1 lower than the previous one.
+Every single day by itself is always a valid descent period.
+
+Instead of checking all subarrays, I focus on how many valid periods end at each day.
+
+⸻
+
+Key Idea
+
+If on day i:
+	•	prices[i] == prices[i-1] - 1
+→ the descent continues, so all descent periods ending at day i-1 can be extended
+	•	otherwise
+→ the descent breaks and a new one starts at day i
+
+I keep a variable length:
+	•	length = length of the current smooth descent ending at day i
+	•	the number of valid descent periods ending at day i is exactly length
+
+I add length to the answer for every day.
+
+⸻
+
+Example
+
+For prices = [3,2,1,4]
+	•	Day 0 → length = 1 → [3]
+	•	Day 1 → 2 = 3 - 1 → length = 2 → [2], [3,2]
+	•	Day 2 → 1 = 2 - 1 → length = 3 → [1], [2,1], [3,2,1]
+	•	Day 3 → break → length = 1 → [4]
+
+Total = 1 + 2 + 3 + 1 = 7
+
+⸻
+
+Algorithm
+	1.	Initialize length = 0 and answer = 0
+	2.	Iterate through the prices:
+	•	If the current price continues a -1 descent → increment length
+	•	Otherwise → reset length = 1
+	3.	Add length to answer
+	4.	Return answer
