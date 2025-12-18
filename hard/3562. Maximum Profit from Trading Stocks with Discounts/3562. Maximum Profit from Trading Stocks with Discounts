@@ -1,18 +1,100 @@
-A smooth descent period is basically a run where each next price is exactly -1 from the previous.
+3562. Maximum Profit from Trading Stocks with Discounts — Solution Explanation
 
-Key observation
+Idea
 
-If you’re at index i and prices[i-1] - prices[i] == 1, then you can extend the previous descent streak.
-Let len = length of current valid descent streak ending at i.
-	•	If condition holds → len += 1
-	•	Else → len = 1
+We have a company hierarchy (a rooted tree with CEO = node 1).
+Each employee i can be chosen to buy their stock at most once.
+	•	Normal buy cost: present[i]
+	•	If their direct boss buys their own stock, then employee i gets a discount:
+	•	discounted cost = floor(present[i] / 2)
 
-How many smooth descent subarrays end at i? Exactly len (all suffixes of that streak).
-So answer is sum(len over all i).
+If we buy stock i, profit gained is:
 
-Example: [3,2,1,4]
-	•	i=0: len=1 → +1
-	•	i=1: 3→2 diff=1 len=2 → +2
-	•	i=2: 2→1 diff=1 len=3 → +3
-	•	i=3: 1→4 diff!=1 len=1 → +1
-Total = 1+2+3+1 = 7
+profit(i) = future[i] - buyCost(i)
+
+We must choose a set of employees to buy such that total buy cost ≤ budget, and total profit is maximized.
+
+This is a tree DP + knapsack problem.
+
+⸻
+
+DP State
+
+For every node u we compute two knapsack DP arrays:
+	•	dp0[u][b] = maximum profit achievable in subtree of u using exactly budget b,
+given that u’s parent did NOT buy (so u pays full price if bought).
+	•	dp1[u][b] = same, but given that u’s parent DID buy (so u may buy at discounted price).
+
+NEG_INF is used to mark impossible states.
+
+⸻
+
+Transitions
+
+At node u, we consider two options (under each parent-state pb ∈ {0,1}):
+
+1) Do NOT buy stock of u
+Then children do not get discount from u, so each child uses dp0[child].
+
+We merge all children knapsacks:
+	•	start: cur_not[0] = 0
+	•	for each child v: cur_not = merge(cur_not, dp0[v])
+
+2) BUY stock of u
+Cost depends on whether parent bought:
+	•	if pb == 0: cost_u = present[u]
+	•	if pb == 1: cost_u = present[u] // 2
+
+Profit if bought:
+
+profit_u = future[u] - cost_u
+
+If we buy u, then children DO get discount from u, so for each child we must use dp1[child].
+	•	start: cur_buy[cost_u] = profit_u
+	•	for each child v: cur_buy = merge(cur_buy, dp1[v])
+
+Final for this parent-state
+For each budget b:
+
+best[b] = \max(cur\_not[b], cur\_buy[b])
+	•	if pb == 0 store in dp0[u]
+	•	if pb == 1 store in dp1[u]
+
+⸻
+
+Knapsack Merge
+
+merge_knapsack(a, b) combines two knapsack arrays:
+	•	a[i] profit from some processed part using cost i
+	•	b[j] profit from next part using cost j
+
+Then:
+
+res[i+j] = \max(res[i+j], a[i] + b[j])
+
+This is standard O(B²) merging (B = budget), repeated across edges.
+
+⸻
+
+Why this works
+	•	The “discount depends on whether parent buys” is exactly captured by the two states (dp0, dp1).
+	•	The budget constraint is handled by knapsack arrays.
+	•	The tree structure ensures subproblems are independent after choosing whether u is bought.
+
+⸻
+
+Complexity
+
+Let B = budget (≤ 160), n ≤ 160.
+
+Each merge is O(B²) and we do merges per edge (constant number of times).
+
+Overall:
+	•	Time: O(n * B²) (fits easily for 160 and 160)
+	•	Memory: O(n * B)
+
+⸻
+
+Reference Implementation (Python)
+
+(Your code exactly matches this approach: DFS + dp0/dp1 + knapsack merge.)
