@@ -1,0 +1,73 @@
+Idea
+We are given:
+	•	prices[i] = stock price on day i
+	•	strategy[i] in { -1, 0, 1 } meaning:
+	•	-1 → buy (profit contribution = -prices[i])
+	•	0 → hold (profit contribution = 0)
+	•	1 → sell (profit contribution = +prices[i])
+	•	Profit is simply:
+\sum_{i=0}^{n-1} strategy[i] \cdot prices[i]
+Important: there is no budget / inventory constraint, so we don’t track how many stocks we own.
+We are allowed to do at most one modification on the strategy:
+	•	pick exactly k consecutive elements (k is even)
+	•	set the first k/2 elements to 0 (hold)
+	•	set the last k/2 elements to 1 (sell)
+We want the maximum possible profit.
+
+Key Observation
+Instead of recalculating the full profit for every possible window (too slow), we compute:
+	1.	base_profit = profit using the original strategy (no modification)
+	2.	For each possible window, compute only the change (delta) caused by the modification.
+Then:
+answer = base\_profit + \max(0, best\_delta)
+We take max(0, ...) because modification is optional.
+
+Delta computation
+Let h = k/2.
+When we modify a window [l, l+k):
+First half: indices [l, l+h) become 0
+Old contribution = strategy[i] * prices[i]
+New contribution = 0
+So delta for those indices:
+(0 - strategy[i]) \cdot prices[i] = -strategy[i] \cdot prices[i]
+Define:
+	•	A[i] = -strategy[i] * prices[i]
+Then the first half delta is:
+\sum_{i=l}^{l+h-1} A[i]
+
+Second half: indices [l+h, l+k) become 1
+Old contribution = strategy[i] * prices[i]
+New contribution = 1 * prices[i]
+Delta:
+(1 - strategy[i]) \cdot prices[i]
+Define:
+	•	B[i] = (1 - strategy[i]) * prices[i]
+Then the second half delta is:
+\sum_{i=l+h}^{l+k-1} B[i]
+
+Total delta for window start l
+delta(l) =
+\sum_{i=l}^{l+h-1} A[i]
++
+\sum_{i=l+h}^{l+k-1} B[i]
+We just need the maximum delta over all valid l.
+
+Prefix Sums for O(1) window sums
+We build prefix sums:
+	•	prefA[i] = A[0] + A[1] + ... + A[i-1]
+	•	prefB[i] = B[0] + B[1] + ... + B[i-1]
+Then any segment sum is:
+sum(A[l:r]) = prefA[r] - prefA[l]
+Same for B.
+So each window delta is computed in O(1), and we scan all windows in O(n).
+
+
+Complexity
+	•	Building arrays + prefix sums: O(n)
+	•	Scanning all windows: O(n)
+Total time: O(n)
+Memory: O(n)
+Works easily for n ≤ 1e5.
+
+Why this works
+Because profit is a linear sum of independent daily actions, and the modification changes only values in one window. So computing profit difference is enough, and prefix sums let us do it fast.
