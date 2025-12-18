@@ -1,44 +1,131 @@
+Below is a GitHub-friendly detailed English explanation for your solution (you can paste it next to the code in README / LeetCode solution file).
+
+⸻
+
 Intuition
 
-I observe that a smooth descent period is a contiguous sequence where each next price is exactly 1 lower than the previous one.
-Every single day by itself is always a valid descent period.
+We want the maximum profit with at most k transactions, where each transaction can be:
+	•	Long (normal): buy first, sell later → profit = sell - buy
+	•	Short sell: sell first, buy back later → profit = sell - buyBack = prices[i] - prices[j]
 
-Instead of checking all subarrays, I focus on how many valid periods end at each day.
+Only one position at a time (must finish a transaction before starting another), and you also can’t start a new one on the same day you just finished one (handled by using dpPrev[j-1]).
 
-⸻
-
-Key Idea
-
-If on day i:
-	•	prices[i] == prices[i-1] - 1
-→ the descent continues, so all descent periods ending at day i-1 can be extended
-	•	otherwise
-→ the descent breaks and a new one starts at day i
-
-I keep a variable length:
-	•	length = length of the current smooth descent ending at day i
-	•	the number of valid descent periods ending at day i is exactly length
-
-I add length to the answer for every day.
+This is a classic DP “at most k transactions”, but with two possible transaction types.
 
 ⸻
 
-Example
+DP Definition
 
-For prices = [3,2,1,4]
-	•	Day 0 → length = 1 → [3]
-	•	Day 1 → 2 = 3 - 1 → length = 2 → [2], [3,2]
-	•	Day 2 → 1 = 2 - 1 → length = 3 → [1], [2,1], [3,2,1]
-	•	Day 3 → break → length = 1 → [4]
+Let:
+	•	dpPrev[j] = maximum profit we can have up to day j using at most (t−1) transactions
+	•	dpCur[j]  = maximum profit we can have up to day j using at most t transactions
 
-Total = 1 + 2 + 3 + 1 = 7
+We build dpCur from left to right (day 0 → day n−1), and after finishing a transaction count t, we set dpPrev = dpCur.
 
 ⸻
 
-Algorithm
-	1.	Initialize length = 0 and answer = 0
-	2.	Iterate through the prices:
-	•	If the current price continues a -1 descent → increment length
-	•	Otherwise → reset length = 1
-	3.	Add length to answer
-	4.	Return answer
+Key Trick: Maintain the Best “Start” Values
+
+When we want to end a transaction on day j, we need the best possible start day i < j.
+
+1) Ending a long transaction on day j
+
+Profit if we bought on day i and sell on j:
+
+dpPrev[i-1] + (prices[j] - prices[i])
+
+Rearrange:
+
+(dpPrev[i-1] - prices[i]) + prices[j]
+
+So we maintain:
+
+bestLong = max over i<j of (dpPrev[i-1] - prices[i])
+
+Then the best long-ending profit at day j is:
+
+prices[j] + bestLong
+
+2) Ending a short transaction on day j
+
+Profit if we sold short on day i and buy back on j:
+
+dpPrev[i-1] + (prices[i] - prices[j])
+
+Rearrange:
+
+(dpPrev[i-1] + prices[i]) - prices[j]
+
+So we maintain:
+
+bestShort = max over i<j of (dpPrev[i-1] + prices[i])
+
+Then the best short-ending profit at day j is:
+
+bestShort - prices[j]
+(or in your code: -prices[j] + bestShort)
+
+⸻
+
+Transition
+
+For each transaction count t = 1..k:
+	•	Start with:
+	•	dpCur[0] = 0 (can’t finish a transaction on day 0)
+	•	bestLong = -prices[0] (as if we “start” a long on day 0 with profit 0 before it)
+	•	bestShort = prices[0] (as if we “start” a short on day 0 with profit 0 before it)
+
+Then for each day j = 1..n-1:
+	1.	Do nothing on day j:
+
+dpCur[j] = dpCur[j - 1]
+
+
+	2.	Finish a transaction on day j (either long or short):
+
+endProfit = max(prices[j] + bestLong, -prices[j] + bestShort)
+dpCur[j] = max(dpCur[j], endProfit)
+
+
+	3.	Update bestLong / bestShort for future days
+We can only start a new transaction on day j if previous transactions ended no later than day j-1, so we use dpPrev[j-1]:
+
+prevBeforeStart = dpPrev[j - 1]
+bestLong = max(bestLong, prevBeforeStart - prices[j])
+bestShort = max(bestShort, prevBeforeStart + prices[j])
+
+That j-1 is exactly what enforces the “no same-day reuse” rule.
+
+⸻
+
+Why This Works
+	•	dpCur[j] always stores the best profit up to day j with at most t transactions.
+	•	bestLong and bestShort compactly store the best possible “start state” for a transaction we might end later.
+	•	By scanning days left to right, we ensure all starts happen before ends.
+	•	By using dpPrev[j-1], we ensure transactions don’t overlap and don’t reuse the same day.
+
+⸻
+
+Complexity
+	•	Time: O(k · n) (k passes, each pass scans all days)
+	•	Space: O(n) (two arrays of length n)
+
+Fits comfortably for n <= 1000.
+
+⸻
+
+Your Code (same logic)
+
+Your implementation is already optimal and clean. If you want, you can paste this short comment header above it:
+
+# DP with at most k transactions.
+# Each transaction can be LONG (buy->sell) or SHORT (sell->buy back).
+# dpPrev[j] = best profit up to day j with at most t-1 transactions
+# dpCur[j]  = best profit up to day j with at most t transactions
+# bestLong  = max(dpPrev[i-1] - prices[i]) for i < current day
+# bestShort = max(dpPrev[i-1] + prices[i]) for i < current day
+
+
+⸻
+
+If you want, I can also format it into a complete README.md section (with headings + example walkthrough) so it looks very clean in your GitHub repo.
