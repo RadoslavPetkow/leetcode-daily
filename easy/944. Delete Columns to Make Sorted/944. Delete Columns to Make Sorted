@@ -1,0 +1,28 @@
+944. Delete Columns to Make Sorted (Easy)
+Problem
+You are given an array of strings strs, all with the same length.
+Think of them as rows in a grid. A column is sorted lexicographically if reading it from top to bottom is non-decreasing.
+Return how many columns are not sorted and therefore must be deleted.
+
+
+Key Idea
+Check each column independently.
+For a column c, compare characters in adjacent rows:
+	•	if at any point strs[r][c] > strs[r+1][c], the column is not sorted
+	•	count it as a deletion and stop checking that column (early break)
+
+Example
+strs = ["cba","daf","ghi"]
+Grid:
+c b a
+d a f
+g h i
+	•	Column 0: c <= d <= g sorted
+	•	Column 1: b > a not sorted → delete
+	•	Column 2: a <= f <= i sorted
+Answer = 1
+
+Complexity
+	•	Time: O(n * m) where n = len(strs) and m = len(strs[0])
+	•	Space: O(1)
+
