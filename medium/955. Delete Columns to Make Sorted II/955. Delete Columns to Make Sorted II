@@ -1,0 +1,30 @@
+955. Delete Columns to Make Sorted II — Explanation (Greedy)
+Problem
+We have n strings of equal length. We may delete some columns (same indices in every string). After deletions, the array must be lexicographically non-decreasing:
+strs[0] <= strs[1] <= ... <= strs[n-1]
+Return the minimum number of deleted columns.
+
+Key Insight
+When comparing strs[i] and strs[i+1], the final lexicographic result is decided by the first column where they differ (among the columns we keep).
+So while scanning columns left → right:
+	•	Some adjacent pairs (i, i+1) are still “undecided”
+	•	Once we find a kept column where strs[i][c] < strs[i+1][c], that pair is permanently sorted, and future columns cannot break it anymore.
+
+Strategy
+Maintain an array fixed[i]:
+	•	fixed[i] = True means strs[i] < strs[i+1] is already guaranteed by previous kept columns.
+For each column c:
+	1.	Check if keeping it breaks order for any unresolved pair:
+	•	If there exists i with not fixed[i] and strs[i][c] > strs[i+1][c]
+	•	Then we must delete this column (otherwise order becomes impossible).
+	2.	If it’s safe to keep:
+	•	For every unresolved pair with strs[i][c] < strs[i+1][c], set fixed[i] = True.
+
+This is optimal because:
+	•	We only delete a column when it must be deleted (it would break lexicographic order immediately).
+
+Complexity
+	•	Time: O(n * m)
+	•	Space: O(n)
+Where n = number of strings, m = length of each string.
+
