@@ -1,0 +1,33 @@
+Delete Columns to Make Sorted III (LeetCode 960)
+Problem
+You are given n strings of equal length. You may delete any set of column indices, removing those characters from every string.
+After deletions, each individual string must be lexicographically non-decreasing.
+Return the minimum number of columns to delete to achieve this.
+Input: Array of strings strs
+Output: Integer (minimum deletions)
+
+Key Idea
+Instead of deciding which columns to delete, we decide which columns to keep.
+Two columns i < j can both be kept if and only if for every row r,
+strs[r][i] <= strs[r][j].
+This transforms the problem into finding the Longest Increasing Subsequence (LIS) over columns, where the comparison must hold across all rows.
+The final answer is:
+total_columns − longest_valid_column_sequence.
+
+Approach
+	1.	Let m be the number of columns.
+	2.	Use DP where dp[j] = length of the longest valid column sequence ending at column j.
+	3.	For every pair of columns (i, j) with i < j, check if column i can come before j in all rows.
+	4.	Update dp[j] = max(dp[j], dp[i] + 1) if valid.
+	5.	Subtract the maximum LIS length from m to get the minimum deletions.
+
+Complexity
+	•	Time: O(n · m²)
+	•	Space: O(m)
+
+Where n = number of rows, m = number of columns.
+
+Edge Cases
+	•	Single string (must be sorted individually)
+	•	All rows already sorted → answer is 0
+	•	Completely decreasing columns → delete all but one column
