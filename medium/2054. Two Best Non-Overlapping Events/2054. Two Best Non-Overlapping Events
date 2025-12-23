@@ -1,0 +1,66 @@
+Two Best Non-Overlapping Events (LeetCode 2054)
+
+Problem
+
+You are given a list of events, where each event has a start time, an end time (both inclusive), and a value. You may attend at most two events as long as they do not overlap in time. The goal is to maximize the sum of values from the selected events.
+
+Input: events[i] = [startTime, endTime, value]
+Output: Maximum achievable sum of values using up to two non-overlapping events.
+
+Key Idea
+
+The key observation is that for any event we choose as the second one, we only need to know the best-value event that ends before it starts. By sorting events by start time and using a min-heap ordered by end time, we can efficiently track which previous events no longer overlap. We maintain the maximum value among all non-overlapping past events and combine it with the current event.
+
+Approach
+	1.	Sort all events by their startTime.
+	2.	Use a min-heap to store previous events as (endTime, value).
+	3.	As we iterate, remove from the heap all events with endTime < current startTime and keep track of the maximum value among them.
+	4.	For each event, update the answer using either the event alone or the event combined with the best non-overlapping previous event.
+
+Complexity
+	•	Time: O(n log n)
+	•	Space: O(n)
+
+Edge Cases
+	•	Choosing only one event gives the maximum value.
+	•	Multiple events with the same start or end times.
+	•	All events overlap, so only one can be selected.
+
+Solution (Python)
+
+from typing import List
+import heapq
+
+class Solution:
+    def maxTwoEvents(self, events: List[List[int]]) -> int:
+        # Sort events by start time
+        events.sort(key=lambda x: x[0])
+
+        heap = []  # (endTime, value)
+        best = 0   # best value of a non-overlapping past event
+        ans = 0
+
+        for start, end, value in events:
+            # Remove events that end before current start time
+            while heap and heap[0][0] < start:
+                _, val = heapq.heappop(heap)
+                best = max(best, val)
+
+            # Either take this event alone or pair it with the best previous one
+            ans = max(ans, value, best + value)
+
+            # Add current event to the heap
+            heapq.heappush(heap, (end, value))
+
+        return ans
+
+
+⸻
+
+Detailed Explanation (How to Write It Easily)
+	1.	What do I observe?
+Only events that end before the current event starts can be paired with it.
+	2.	How do I compute it?
+I sort events by start time, remove expired events using a heap, and track the best value seen so far.
+	3.	Why is it efficient?
+Each event is pushed and popped from the heap once, leading to an O(n log n) solution.
