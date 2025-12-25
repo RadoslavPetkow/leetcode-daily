@@ -1,0 +1,41 @@
+# Maximize Happiness of Selected Children (LeetCode 3075)
+
+## Problem
+You are given an array `happiness`, where each value represents a child’s happiness, and an integer `k`.
+You select exactly `k` children one by one. After each selection, the happiness of all remaining children decreases by 1 (but not below 0).
+The goal is to maximize the total happiness of the selected children.
+
+**Input:** `happiness: List[int]`, `k: int`
+**Output:** `int`
+
+## Key Idea
+The best strategy is to always select the child with the highest current happiness.
+Since every selection decreases the remaining happiness values by 1, picking larger values earlier minimizes the loss.
+After sorting the array in descending order, the effective happiness of the `i`-th picked child becomes
+`max(happiness[i] - i, 0)`.
+
+## Approach
+1. Sort the `happiness` array in descending order.
+2. Iterate over the first `k` elements.
+3. For each index `i`, add `max(happiness[i] - i, 0)` to the result.
+
+## Complexity
+- Time: **O(n log n)** (due to sorting)
+- Space: **O(1)** extra space (in-place sorting)
+
+## Edge Cases
+- When all happiness values drop to 0 before selecting `k` children.
+- When `k = 1` (just pick the maximum).
+- Large happiness values with large `n`.
+
+## Solution (Python)
+```python
+from typing import List
+
+class Solution:
+    def maximumHappinessSum(self, happiness: List[int], k: int) -> int:
+        happiness.sort(reverse=True)
+        total = 0
+        for i in range(k):
+            total += max(happiness[i] - i, 0)
+        return total
