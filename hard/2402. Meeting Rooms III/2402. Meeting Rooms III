@@ -1,0 +1,31 @@
+Meeting Rooms III (LeetCode 2402)
+
+Problem
+You are given n meeting rooms and a list of meetings with unique start times.
+Each meeting must be assigned to the lowest-numbered available room; if none are available, it is delayed until a room becomes free while keeping the same duration.
+Meetings with earlier original start times have priority when rooms free up. Return the room that hosted the most meetings (tie → lowest index).
+Input: n, meetings[i] = [start_i, end_i)
+Output: Index of the room with the highest meeting count.
+
+Key Idea
+Use two min-heaps to simulate room allocation efficiently.
+One heap tracks free rooms by smallest index, and another tracks busy rooms by earliest end time.
+By always freeing rooms before a meeting’s start and delaying only when necessary, we follow the rules exactly while keeping operations efficient.
+
+Approach
+	1.	Sort meetings by start time (ascending).
+	2.	Maintain a min-heap of free rooms (room indices).
+	3.	Maintain a min-heap of busy rooms as (end_time, room).
+	4.	For each meeting:
+	•	Free all rooms whose end_time <= start.
+	•	If a room is free, assign the meeting immediately.
+	•	Otherwise, pop the earliest-ending room and delay the meeting to start at that end time (same duration).
+	•	Increment the meeting count for the chosen room.
+	5.	Return the room with the maximum count (tie → smallest index).
+Complexity
+	•	Time: O(m log n), where m = len(meetings)
+	•	Space: O(n)
+Edge Cases
+	•	Multiple rooms free at the same time → pick smallest index.
+	•	All rooms busy → delay using earliest-ending room.
+	•	Ties in meeting counts → return smallest room index.
