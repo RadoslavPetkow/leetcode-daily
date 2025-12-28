@@ -1,0 +1,27 @@
+Count Negative Numbers in a Sorted Matrix (LeetCode 1351)
+
+Problem
+You are given an m x n matrix grid sorted in non-increasing order both row-wise and column-wise.
+Return the total number of negative numbers in the matrix.
+Input: grid – 2D list of integers
+Output: Integer – count of negative values
+
+Key Idea
+The task is simply to count how many elements in the matrix are negative.
+Since the constraints are small (m, n ≤ 100), we can safely iterate through all elements and count those that are less than zero.
+This approach is clear, readable, and efficient enough for the problem limits.
+
+Approach
+	1.	Iterate through each row in the matrix.
+	2.	Iterate through each value in the row.
+	3.	Count every value that is strictly less than 0.
+Python’s generator expressions allow us to do this concisely in a single line.
+
+Complexity
+	•	Time: O(m · n) – every element is checked once
+	•	Space: O(1) – no extra data structures are used
+
+Edge Cases
+	•	Matrix contains no negative numbers → return 0
+	•	Matrix contains only negative numbers
+	•	Matrix size is 1 × 1
