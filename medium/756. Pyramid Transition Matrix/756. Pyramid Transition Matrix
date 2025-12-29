@@ -1,0 +1,125 @@
+756. Pyramid Transition Matrix — Explanation (README.md)
+
+Problem Summary
+
+You are given a bottom row bottom (a string). You want to build a pyramid upward where each upper row has one less block than the row below.
+
+You are also given allowed, a list of 3-letter strings. Each string represents a valid triangle rule:
+	•	first two letters = the two bottom blocks (left, right)
+	•	third letter = the top block
+
+Example: "ABC" means if you have A and B next to each other, you may place C above them.
+
+Return true if it is possible to build the pyramid all the way to the top (1 block), otherwise return false.
+
+⸻
+
+Key Idea
+
+For every adjacent pair in the current row:
+	•	row[i] + row[i+1]
+
+there can be 0, 1, or multiple possible letters that can go on top.
+
+So we:
+	1.	Build a mapping: pair -> list of possible top letters
+	2.	Use DFS + backtracking to try all possible upper rows
+	3.	Use memoization (cache) so we don’t recompute the same row again
+
+Because bottom.length <= 6, this brute-force + pruning approach is fast enough.
+
+⸻
+
+Example Walkthrough
+
+bottom = "BCD"
+allowed = ["BCC","CDE","CEA","FFF"]
+
+Pairs in "BCD":
+	•	"BC" -> "C" (from "BCC")
+	•	"CD" -> "E" (from "CDE")
+
+So the next row can be "CE".
+
+Now "CE" -> "A" (from "CEA"), reaching the top "A" ✅
+
+⸻
+
+Algorithm
+	1.	Preprocess allowed into a dictionary:
+	•	key: "AB"
+	•	value: list like ["C", "D", ...]
+	2.	Define can_build(row):
+	•	if len(row) == 1: return True
+	•	otherwise, generate all possible next_row strings using backtracking:
+	•	for each position i, look up row[i:i+2]
+	•	try each possible top letter
+	•	if any next_row leads to success, return True
+	3.	Cache results for each row (memoization)
+
+⸻
+
+Complexity
+
+Let n = len(bottom) (max 6).
+In the worst case, we may branch multiple times per pair, but with memoization the total number of distinct rows is small, so it runs quickly under constraints.
+
+⸻
+
+Python Solution (DFS + Memoization)
+
+from functools import lru_cache
+from collections import defaultdict
+from typing import List
+
+class Solution:
+    def pyramidTransition(self, bottom: str, allowed: List[str]) -> bool:
+        nxt = defaultdict(list)
+        for a in allowed:
+            nxt[a[0] + a[1]].append(a[2])
+
+        @lru_cache(None)
+        def can_build(row: str) -> bool:
+            if len(row) == 1:
+                return True
+
+            def build_next(i: int, path: List[str]) -> bool:
+                if i == len(row) - 1:
+                    return can_build("".join(path))
+
+                pair = row[i] + row[i + 1]
+                if pair not in nxt:
+                    return False
+
+                for ch in nxt[pair]:
+                    path.append(ch)
+                    if build_next(i + 1, path):
+                        return True
+                    path.pop()
+                return False
+
+            return build_next(0, [])
+
+        return can_build(bottom)
+
+
+⸻
+
+Practice (with answers)
+
+Practice 1
+
+Input: bottom = "AB", allowed = ["ABC", "ABD"]
+Answer: True
+
+Practice 2
+
+Input: bottom = "ABC", allowed = ["ABD", "BCE"]
+Answer: False (you may form "DE", but there is no rule for "DE")
+
+Practice 3
+
+Input: bottom = "BCD", allowed = ["BCC", "CDE", "CEA"]
+Answer: True
+
+If you want, paste your repo’s README template and I’ll fit this into your exact formatting/style.
