@@ -1,0 +1,54 @@
+840. Magic Squares In Grid (Medium)
+
+Problem
+You are given a row x col integer matrix grid. Your task is to count how many 3x3 subgrids are magic squares.
+A 3x3 magic square is a 3x3 grid that:
+	•	contains distinct numbers from 1 to 9
+	•	every row, every column, and both diagonals have the same sum
+
+Note: grid itself may contain numbers up to 15, but a valid magic square must use only 1..9.
+
+Key Observation
+For the classic 3x3 magic square using numbers 1..9 (the Lo Shu square):
+	•	the center cell must be 5
+
+This gives a fast prune:
+If grid[i+1][j+1] != 5, then that 3x3 block cannot be a magic square.
+
+
+Approach
+Iterate over every possible 3x3 subgrid:
+	•	top-left corner (i, j) where i in [0..rows-3] and j in [0..cols-3]
+
+For each 3x3 block, check:
+	1.	Center is 5
+	2.	All 9 values are:
+	•	within [1..9]
+	•	distinct (use a set)
+	3.	Compute the target sum using the first row.
+	4.	Verify that:
+	•	the other two rows match the target sum
+	•	all three columns match the target sum
+	•	both diagonals match the target sum
+
+If all checks pass, count it.
+
+Why It Works
+	•	The “distinct 1..9” constraint ensures the subgrid matches the magic square number requirements.
+	•	Checking all rows, columns, and diagonals exactly matches the definition of a magic square.
+	•	The “center must be 5” rule eliminates most candidates early, speeding up the solution.
+
+Complexity
+
+Let R = rows, C = cols.
+
+There are (R-2) * (C-2) possible 3x3 subgrids.
+Each verification is constant work (9 cells + a few sums).
+
+Time: O(R * C)
+Space: O(1) (the set holds at most 9 values)
+
+Notes / Edge Cases
+	•	If rows < 3 or cols < 3, the answer is 0.
+	•	Any value outside [1..9] immediately invalidates the 3x3 block.
+	•	Duplicate values inside the 3x3 block invalidate it.
