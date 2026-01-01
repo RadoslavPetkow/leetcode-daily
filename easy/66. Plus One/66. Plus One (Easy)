@@ -1,0 +1,24 @@
+66. Plus One (Easy)
+Problem
+Given an array digits where each element is a digit of a large integer (most significant to least significant),
+increment the number by 1 and return the resulting digits as an array.
+Example:
+	•	[1,2,3] → represents 123 → 123 + 1 = 124 → [1,2,4]
+
+Approach (Python conversion)
+We can treat the array of digits as a number:
+	1.	Convert the list of digits into a string (e.g. [1,2,3] → "123").
+	2.	Convert the string into an integer and add 1.
+	3.	Convert the result back to a string.
+	4.	Convert each character back into an integer digit.
+This works well in Python because integers have arbitrary precision (no overflow for large numbers).
+
+Algorithm
+	1.	num = int(''.join(map(str, digits))) + 1
+	2.	return list(map(int, str(num)))
+
+Complexity
+	•	Time: O(n)
+We process the digits a few times (join + conversions).
+	•	Space: O(n)
+We create strings and a new list of digits.
