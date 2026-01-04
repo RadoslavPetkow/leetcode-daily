@@ -1,0 +1,42 @@
+1390. Four Divisors (Medium)
+
+Problem
+Given an integer array nums, return the sum of divisors of the integers in that array that have exactly four divisors.
+If an integer doesn’t have exactly 4 divisors, ignore it. If none do, return 0.
+
+Key Idea
+A number has exactly 4 divisors only in two cases:
+Case 1: n = p^3 (prime cube)
+If p is prime, then:
+	•	divisors are: 1, p, p^2, p^3
+	•	example: 8 = 2^3 → divisors 1,2,4,8 (4 divisors)
+
+Case 2: n = p * q (product of two different primes)
+If p and q are different primes, then:
+	•	divisors are: 1, p, q, p*q
+	•	example: 21 = 3*7 → divisors 1,3,7,21 (4 divisors)
+So we only need to detect if each n matches one of these patterns.
+
+Approach
+For each number n:
+	1.	Search for a divisor d from 2 to sqrt(n).
+	2.	If we find more than one divisor pair, then n has more than 4 divisors → ignore.
+	3.	If we find exactly one divisor pair (d, n/d):
+	•	If d == n/d → perfect square → not 4 divisors.
+	•	If both d and n/d are prime → n = p*q → add 1 + d + n/d + n.
+	•	Else if n/d == d*d and d is prime → n = p^3 → add 1 + d + d^2 + n.
+
+Example
+nums = [1,2,3,4,5,6,7,8,9,10]
+
+Numbers with exactly 4 divisors:
+	•	6 = 2*3 → sum = 1+2+3+6 = 12
+	•	8 = 2^3 → sum = 1+2+4+8 = 15
+	•	10 = 2*5 → sum = 1+2+5+10 = 18
+Total: 12 + 15 + 18 = 45
+
+Complexity
+Let m = max(nums[i]) (up to 100000).
+	•	For each number we iterate up to sqrt(n) → O(sqrt(n))
+	•	Primality checks are also up to sqrt(n)
+Overall: O(len(nums) * sqrt(m)), which is fast enough.
