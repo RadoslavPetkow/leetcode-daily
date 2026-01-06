@@ -1,0 +1,29 @@
+1161. Maximum Level Sum of a Binary Tree
+
+Problem
+Given the root of a binary tree, level 1 contains the root, level 2 contains its children, etc.
+Return the smallest level x such that the sum of all node values at level x is maximum.
+
+Approach (BFS / Level-Order Traversal)
+The most natural way to compute sums per level is Breadth-First Search (BFS):
+	1.	Push the root into a queue.
+	2.	While the queue is not empty:
+	•	The current queue size equals the number of nodes on this level.
+	•	Pop exactly that many nodes, add their values to level_sum.
+	•	Push their children into the queue for the next level.
+	3.	Track the best answer:
+	•	best_sum = maximum level sum found so far
+	•	best_level = earliest level that achieved best_sum
+	4.	Update only when level_sum > best_sum (not >=) to keep the smallest level in case of ties.
+
+
+Example
+For root = [1,7,0,7,-8,null,null]:
+	•	Level 1 sum = 1
+	•	Level 2 sum = 7 + 0 = 7  ✅ (maximum)
+	•	Level 3 sum = 7 + (-8) = -1
+Answer: 2
+
+Complexity
+	•	Time: O(n) — each node is processed once
+	•	Space: O(w) — w is the maximum width of the tree (max nodes in the queue at any level)
