@@ -1,0 +1,41 @@
+1339. Maximum Product of Splitted Binary Tree — Explanation (for README.md)
+Problem
+You are given the root of a binary tree. You can split the tree into two subtrees by removing exactly one edge.
+For that split, compute:
+	•	sumA = sum of all node values in the first subtree
+	•	sumB = sum of all node values in the second subtree
+
+Your goal is to maximize sumA * sumB.
+Because the product can be huge, return the result modulo (10^9 + 7).
+Important: maximize the product first, then apply modulo.
+
+Key Observation
+If we remove the edge above some subtree whose node-sum is s, then:
+	•	One part has sum s
+	•	The other part has sum totalSum - s
+So the product for that cut is:
+product = s * (totalSum - s)
+That means we just need:
+	1.	The total sum of the entire tree
+	2.	Every subtree sum s, because every subtree corresponds to one possible cut
+Then we take the maximum of s * (totalSum - s) over all subtrees.
+
+Approach
+Two-phase idea (can be done in one traversal + loop):
+	1.	Compute all subtree sums (postorder traversal).
+	2.	Let totalSum be the subtree sum of the root.
+	3.	For each subtree sum s, compute s * (totalSum - s) and keep the maximum.
+	4.	Return maxProduct % (10^9 + 7).
+To avoid recursion depth issues (tree can have up to 50,000 nodes), we use an iterative postorder traversal.
+
+Why this works
+	•	Every possible split is done by removing one edge.
+	•	Removing an edge always separates the tree into:
+	•	a subtree (sum s)
+	•	the rest of the tree (sum total - s)
+	•	Checking all subtree sums guarantees we consider every possible cut.
+	•	Taking the max gives the best possible product.
+
+Complexity
+	•	Time: O(n) (each node processed once)
+	•	Space: O(n) (store subtree sums)
